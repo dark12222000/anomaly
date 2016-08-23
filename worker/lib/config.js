@@ -8,16 +8,22 @@ let conf = convict({
   },
   redis: {
     host: {
-      format: 'url',
-      default: 'http://localhost'
+      default: '127.0.0.1'
+    },
+    family: {
+      format: [4, 6],
+      default: 4
     },
     port: {
       format: 'int',
       default: 6379
     },
     password: {
-      format: 'string',
       default: ''
+    },
+    db: {
+      format: 'int',
+      default: 0
     }
   }
 });

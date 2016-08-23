@@ -14,7 +14,9 @@
     "node": true
   },
   "dependencies": {
+    "cidr-range": "^1.0.6",
     "convict": "^1.4.0",
+    "glob": "^7.0.5",
     "ioredis": "^2.3.0",
     "mkdirp": "^0.5.1",
     "simple-git": "^1.47.0"

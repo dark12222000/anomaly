@@ -38,22 +38,14 @@ module.exports = {
   },
   /*
    * Checks repo status, if no status or err does a clone, otherwise pulls
-   * @returns a promise
    */
-  update: function(){
-    return new Promise(function(resolve, reject){
-      function genericCB(err, results){
-        console.log(err, results);
-        if(err) return reject(err);
-        return resolve(results);
+  update: function(cb){
+    module.exports.status(function(err, status){
+      if(err || !status){
+        return module.exports.clone(cb);
+      }else{
+        return module.exports.pull(cb);
       }
-      module.exports.status(function(err, status){
-        if(err || !status){
-          return module.exports.clone(genericCB);
-        }else{
-          return module.exports.pull(genericCB);
-        }
-      });
     });
   }
 };
