@@ -4,13 +4,19 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
+  "jshintConfig": {
+    "esversion": 6,
+    "node": true
+  },
   "dependencies": {
     "convict": "^1.4.0",
     "ioredis": "^2.3.0",
+    "mkdirp": "^0.5.1",
     "simple-git": "^1.47.0"
   }
 }
