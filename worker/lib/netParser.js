@@ -22,7 +22,6 @@ module.exports = {
     //we have a valid IP address
     if(line.indexOf('/') !== -1){
       //we have a range
-      console.log(line);
       return {type: 'range', address: line.trim()};
     }else{
       //we have a single address
@@ -31,26 +30,22 @@ module.exports = {
 
   },
   /*
-   * Takes a path to a ipset or netset file (no need to differentiate)
+   * Takes the contents of a ipset or netset file (no need to differentiate)
    * Returns a flattened array of all ips in the file
    */
-  parseFile: function(file, cb){
-    fs.readFile(file, 'utf8', (err, data)=>{
-      if(err) return cb(err, null);
-      data = data.split('\n');
-      let addresses = [];
-      let ranges = [];
-      for(var i = 0; i < data.length; i++){
-        let ip = module.exports.parseLine(data[i]);
-        delete data[i];
-        if(!ip) continue;
-        if(ip.type === 'address'){
-          addresses.push(ip.address);
-        }else if(ip.type === 'range'){
-          ranges.push(ip.address);
-        }
+  parseFile: function(file){
+    lines = file.split('\n');
+    let addresses = [];
+    let ranges = [];
+    for(var i = 0; i < lines.length; i++){
+      let ip = module.exports.parseLine(lines[i]);
+      if(!ip) continue;
+      if(ip.type === 'address'){
+        addresses.push(ip.address);
+      }else if(ip.type === 'range'){
+        ranges.push(ip.address);
       }
-      return cb(null, {addresses: addresses, ranges: ranges});
-    });
+    }
+    return {addresses: addresses, ranges: ranges};
   }
 };

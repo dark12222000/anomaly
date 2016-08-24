@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node --expose-gc --max_old_space_size=8192 --optimize_for_size --max_executable_size=4096 --stack_size=4096 index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -14,11 +14,13 @@
     "node": true
   },
   "dependencies": {
+    "asyncawait": "^1.0.6",
     "cidr-range": "^1.0.6",
     "convict": "^1.4.0",
     "glob": "^7.0.5",
     "ioredis": "^2.3.0",
     "mkdirp": "^0.5.1",
+    "netmask": "^1.0.6",
     "simple-git": "^1.47.0"
   }
 }
