@@ -2,9 +2,6 @@
  * Parser for fireHOL ipset and netset files
  * Returns a flat array of IP addresses
  */
-const fs = require('fs');
-const cidrRange = require('cidr-range');
-
 const IP_REGEX = /([0-9]{1,3}.?){1,4}/;
 const MAX_MASK = 8;
 
