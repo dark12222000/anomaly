@@ -8,7 +8,6 @@ const glob = require('glob-all');
 
 const repo = require('./lib/repoController');
 const netParser = require('./lib/netParser');
-const redis = require('./lib/redisController');
 const config = require('./lib/config.js');
 
 const REPO_PATH = './../../repo'; //keep this out of our own git root
@@ -67,15 +66,14 @@ function processRange(){
   }
 }
 
-redis.on('ready', ()=>{
-  // repo.update(function(){
-    files = glob.sync([REPO_PATH + '/*.@(ipset|netset)', `!*bogons*`]);
-    files = files.filter((name)=>{
-      return name.indexOf('bogons') === -1;
-    });
-    while(files.length) processFile();
-    writeBulkFile(addresses);
-    addresses = null;
-    processRange();
-  // });
-});
+
+// repo.update(function(){
+  files = glob.sync([REPO_PATH + '/*.@(ipset|netset)', `!*bogons*`]);
+  files = files.filter((name)=>{
+    return name.indexOf('bogons') === -1;
+  });
+  while(files.length) processFile();
+  writeBulkFile(addresses);
+  addresses = null;
+  processRange();
+// });
