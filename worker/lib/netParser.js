@@ -6,6 +6,7 @@ const fs = require('fs');
 const cidrRange = require('cidr-range');
 
 const IP_REGEX = /([0-9]{1,3}.?){1,4}/;
+const MAX_MASK = 8;
 
 module.exports = {
   /*
@@ -19,15 +20,7 @@ module.exports = {
     if(!ip){
       return null;
     }
-    //we have a valid IP address
-    if(line.indexOf('/') !== -1){
-      //we have a range
-      return {type: 'range', address: line.trim()};
-    }else{
-      //we have a single address
-      return {type: 'address', address: ip};
-    }
-
+    return line.trim();
   },
   /*
    * Takes the contents of a ipset or netset file (no need to differentiate)
@@ -35,17 +28,22 @@ module.exports = {
    */
   parseFile: function(file){
     lines = file.split('\n');
+    file = null;
     let addresses = [];
     let ranges = [];
     for(var i = 0; i < lines.length; i++){
       let ip = module.exports.parseLine(lines[i]);
       if(!ip) continue;
-      if(ip.type === 'address'){
-        addresses.push(ip.address);
-      }else if(ip.type === 'range'){
-        ranges.push(ip.address);
+      if(ip.indexOf('/') !== -1){
+        if(ip.split('/')[1] >= MAX_MASK){
+          ranges.push(ip);
+        }
+      }else{
+        addresses.push(ip);
       }
+      lines[i] = null;
     }
+    lines = null;
     return {addresses: addresses, ranges: ranges};
   }
 };

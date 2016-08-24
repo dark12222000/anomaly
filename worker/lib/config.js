@@ -25,6 +25,10 @@ let conf = convict({
       format: 'int',
       default: 0
     }
+  },
+  blacklist: {
+    description: 'file patterns to not include',
+    default: '*bogons*'
   }
 });
 
