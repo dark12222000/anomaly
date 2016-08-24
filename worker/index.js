@@ -13,32 +13,23 @@ const config = require('./lib/config.js');
 
 const REPO_PATH = './../../repo'; //keep this out of our own git root
 const EXPIRE_TIME = 60 * 60 * 24; //one day
-const BATCH_SIZE = 8096;
+
+const OUTPUT_FILE = './bulkRedis.txt';
+let redisFile = fs.openSync(OUTPUT_FILE, 'w');
 
 let files = null;
 let addresses = {};
 let ranges = {};
-let rangeKeys = [];
 
-function redisUpload(ipArr, valueOverride, cb){
+function writeBulkFile(ipArr, valueOverride){
   //split into batches
-  let multi = redis.multi();
   for(var i = 0; i < ipArr.length; i++){
     let value =  valueOverride?valueOverride:addresses[ipArr[i]];
-    multi.setex(ipArr[i], EXPIRE_TIME, JSON.stringify(value));
+    value = JSON.stringify(JSON.stringify(value));
+    fs.writeSync(redisFile, `*4\r\n$5\r\nSETEX\r\n$${ipArr[i].length}\r\n${ipArr[i]}\r\n$5\r\n${EXPIRE_TIME}\r\n$${value.length}\r\n${value}\r\n`, null, 'utf8');
     ipArr[i] = null;
-    if(i > BATCH_SIZE){
-      multi.exec();
-    }
   }
   ipArr = null;
-  multi.exec();
-  if(redis.should_buffer){
-    console.log('Waiting for redis');
-    redis.stream.once('drain', cb);
-  }else{
-    return cb();
-  }
 }
 
 function processFile(){
@@ -69,14 +60,10 @@ function processFile(){
 }
 
 function processRange(){
-  function cb(){
-    if(Object.keys(ranges).length) return process.nextTick(processRange);
-  }
   for(let x in ranges){
     console.log(x, ranges[x]);
-    redisUpload(cidr.list(x), ranges[x], cb);
+    writeBulkFile(cidr.list(x), ranges[x]);
     delete ranges[x];
-    break;
   }
 }
 
@@ -87,9 +74,8 @@ redis.on('ready', ()=>{
       return name.indexOf('bogons') === -1;
     });
     while(files.length) processFile();
-    redisUpload(addresses, null, ()=>{
-      addresses = null;
-      processRange();
-    });
+    writeBulkFile(addresses);
+    addresses = null;
+    processRange();
   // });
 });
