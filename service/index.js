@@ -1,13 +1,13 @@
-const http = require('http');
-const connect = require('connect');
+const http = require('http'); //serve over http
+const connect = require('connect'); //connect for standardized middleware
 
-const serviceMiddleware = require('./lib/serviceMiddleware');
+const serviceMiddleware = require('./lib/serviceMiddleware'); //our actual service
 
-let app = connect();
+let app = connect(); //create a new connect instance
 
-app.use(serviceMiddleware);
+app.use(serviceMiddleware); //hook up our middleware
 
-//final handler
+//final handler to throw 404s
 app.use((req, res)=>{
   res.status = 404;
   return res.end();
