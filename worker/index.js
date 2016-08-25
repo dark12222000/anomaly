@@ -28,7 +28,7 @@ let addresses = {};
 let ranges = {};
 
 function writeBulkFile(ipArr, valueOverride, cb){
-  let shouldContinue = false;
+  let shouldContinue = true;
   for(var i = 0; i < ipArr.length; i++){
     let ip = ipArr[i];
     let value =  valueOverride?valueOverride:addresses[ip];
@@ -80,7 +80,7 @@ function processRange(cb){
   // }
   let rangeVal = ranges[currentRange];
   delete ranges[currentRange];
-  writeBulkFile(cidr.list(currentRange), rangeVal, processRange);
+  writeBulkFile(cidr.list(currentRange), rangeVal, function(){ return processRange(cb); });
 }
 
 
@@ -98,8 +98,8 @@ function processRange(cb){
     processRange(()=>{
       redisFile.end(()=>{
         console.log('Uploading');
-        redisUpload(()=>{
-          console.log('Upload finished');
+        redisUpload((err, stdout, stderr)=>{
+          console.log('Command finished:', stdout, stderr);
           process.exit(0);
         });
       });
