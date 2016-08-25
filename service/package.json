@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node_modules/mocha/bin/mocha test/"
   },
   "author": "",
   "license": "ISC",
@@ -16,5 +16,10 @@
     "connect": "^3.4.1",
     "convict": "^1.4.0",
     "ioredis": "^2.3.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.0.2",
+    "request": "^2.74.0"
   }
 }
