@@ -1,3 +1,3 @@
-worker/repo
 node_modules/
 .DS_Store
+worker/bulkRedis.txt

@@ -12,21 +12,33 @@ const REPO_PATH = './../../repo'; //keep this out of our own git root
 const EXPIRE_TIME = 60 * 60 * 24; //one day
 
 const OUTPUT_FILE = './bulkRedis.txt';
-let redisFile = fs.openSync(OUTPUT_FILE, 'w');
+
+try{
+  fs.unlinkSync(OUTPUT_FILE); //this can fail, we don't care
+}catch(e){
+  //don't care
+}
+let redisFile = fs.createWriteStream(OUTPUT_FILE);
+redisFile.setDefaultEncoding('utf8');
 
 let files = null;
 let addresses = {};
 let ranges = {};
 
-function writeBulkFile(ipArr, valueOverride){
-  //split into batches
+function writeBulkFile(ipArr, valueOverride, cb){
+  let shouldContinue = false;
   for(var i = 0; i < ipArr.length; i++){
-    let value =  valueOverride?valueOverride:addresses[ipArr[i]];
+    let ip = ipArr[i];
+    let value =  valueOverride?valueOverride:addresses[ip];
     value = JSON.stringify(JSON.stringify(value));
-    fs.writeSync(redisFile, `*4\r\n$5\r\nSETEX\r\n$${ipArr[i].length}\r\n${ipArr[i]}\r\n$5\r\n${EXPIRE_TIME}\r\n$${value.length}\r\n${value}\r\n`, null, 'utf8');
-    ipArr[i] = null;
+    shouldContinue = redisFile.write(`*4\r\n$5\r\nSETEX\r\n$${ip.length}\r\n${ip}\r\n$5\r\n${EXPIRE_TIME}\r\n$${value.length}\r\n${value}\r\n`);
   }
-  ipArr = null;
+  if(shouldContinue){
+    return cb();
+  }else{
+    redisFile.once('drain', cb);
+  }
+
 }
 
 function processFile(){
@@ -52,11 +64,21 @@ function processFile(){
   return;
 }
 
-function processRange(){
-  for(let x in ranges){
-    writeBulkFile(cidr.list(x), ranges[x]);
-    delete ranges[x];
+function processRange(cb){
+  if(Object.keys(ranges).length <= 0){
+    return cb();
   }
+  let currentRange = Object.keys(ranges).shift();
+  // /*
+  //  * We want to grab a random key from our object without duplicating the keyspace with a keys() call
+  //  */
+  // for(let x in ranges){
+  //   currentRange = x;
+  //   break;
+  // }
+  let rangeVal = ranges[currentRange];
+  delete ranges[currentRange];
+  writeBulkFile(cidr.list(currentRange), rangeVal, processRange);
 }
 
 
@@ -65,8 +87,18 @@ function processRange(){
   files = files.filter((name)=>{
     return name.indexOf('bogons') === -1;
   });
+  console.log('Reading files...');
   while(files.length) processFile();
-  writeBulkFile(addresses);
-  addresses = null;
-  processRange();
+  console.log('Writing individual addresses...');
+  writeBulkFile(Object.keys(addresses), null, ()=>{
+    console.log('Expanding and writing ranges...');
+    addresses = null;
+    processRange(()=>{
+      redisFile.end(()=>{
+        console.log('Finished');
+        process.exit(0);
+      });
+    });
+  });
+
 // });
