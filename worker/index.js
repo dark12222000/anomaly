@@ -1,12 +1,14 @@
 const fs = require('fs');
 
-const cidrJS = require('cidr-js');
+const cidrJS = require('cidr-js'); //used to expand netranges
 let cidr = new cidrJS();
 const glob = require('glob-all');
 
 const repo = require('./lib/repoController');
 const netParser = require('./lib/netParser');
-const config = require('./lib/config.js');
+const config = require('./lib/config');
+
+const redisUpload = require('./lib/redisUpload');
 
 const REPO_PATH = './../../repo'; //keep this out of our own git root
 const EXPIRE_TIME = 60 * 60 * 24; //one day
@@ -95,8 +97,11 @@ function processRange(cb){
     addresses = null;
     processRange(()=>{
       redisFile.end(()=>{
-        console.log('Finished');
-        process.exit(0);
+        console.log('Uploading');
+        redisUpload(()=>{
+          console.log('Upload finished');
+          process.exit(0);
+        });
       });
     });
   });
