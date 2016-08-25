@@ -6,7 +6,7 @@ const redis = require('./redisController.js');
 module.exports = function(req, res, next){
   if(req.method !== 'GET') return next();
   let pUrl = url.parse(req.url);
-  let ip = pUrl.pathname.replace('/', '');
+  let ip = pUrl.pathname.slice(1);
   if(!ip){
     res.statusCode = 400;
     return res.end();
