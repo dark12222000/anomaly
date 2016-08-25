@@ -1,5 +1,6 @@
 const convict = require('convict');
 
+//configuration management with sane defaults
 let conf = convict({
   env: {
     description: 'The application environment',
@@ -8,27 +9,15 @@ let conf = convict({
   },
   redis: {
     host: {
-      default: '127.0.0.1'
-    },
-    family: {
-      format: [4, 6],
-      default: 4
+      default: '127.0.0.1' //localhost is a fairly safe bet
     },
     port: {
       format: 'int',
-      default: 6379
+      default: 6379 //default redis port
     },
     password: {
-      default: ''
-    },
-    db: {
-      format: 'int',
-      default: 0
+      default: null
     }
-  },
-  blacklist: {
-    description: 'file patterns to not include',
-    default: '*bogons*'
   }
 });
 

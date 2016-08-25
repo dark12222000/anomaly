@@ -13,4 +13,5 @@ app.use((req, res)=>{
   return res.end();
 });
 
+//actually set up our app
 http.createServer(app).listen(3000);
