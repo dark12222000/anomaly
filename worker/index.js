@@ -1,5 +1,3 @@
-const heapdump = require('heapdump');
-
 const fs = require('fs');
 
 const cidrJS = require('cidr-js');
@@ -51,16 +49,11 @@ function processFile(){
   }
   results.ranges = null;
   results = null;
-  console.log((process.memoryUsage()).heapUsed, file);
-  // heapdump.writeSnapshot((err, filename)=>{
-  //   console.log(filename);
-  // });
   return;
 }
 
 function processRange(){
   for(let x in ranges){
-    console.log(x, ranges[x]);
     writeBulkFile(cidr.list(x), ranges[x]);
     delete ranges[x];
   }
