@@ -4,6 +4,8 @@
 const REPO_PATH = './../../repo'; //keep this out of our own git root
 const mkdirp = require('mkdirp');
 
+const glob = require('glob-all');
+
 mkdirp.sync(REPO_PATH); //idempotent
 const git = require('simple-git')(REPO_PATH);
 
@@ -42,9 +44,9 @@ module.exports = {
   update: function(cb){
     module.exports.status(function(err, status){
       if(err || !status){
-        return module.exports.clone(cb);
+        module.exports.clone(cb);
       }else{
-        return module.exports.pull(cb);
+        module.exports.pull(cb);
       }
     });
   }

@@ -1,8 +1,8 @@
 const fs = require('fs');
+const path = require('path');
 
 const cidrJS = require('cidr-js'); //used to expand netranges
 let cidr = new cidrJS();
-const glob = require('glob-all');
 
 const repo = require('./lib/repoController');
 const netParser = require('./lib/netParser');
@@ -10,7 +10,7 @@ const config = require('./lib/config');
 
 const redisUpload = require('./lib/redisUpload');
 
-const REPO_PATH = './../../repo'; //keep this out of our own git root
+const REPO_PATH = __dirname+'/../../repo';
 const EXPIRE_TIME = 60 * 60 * 24; //one day
 
 const OUTPUT_FILE = './bulkRedis.txt';
@@ -45,7 +45,7 @@ function writeBulkFile(ipArr, valueOverride, cb){
 
 function processFile(){
   file = files.shift(); //grab file off stack
-  let results = netParser.parseFile(fs.readFileSync(file, 'utf8')); //parse file
+  let results = netParser.parseFile(fs.readFileSync(path.join(REPO_PATH, file), 'utf8')); //parse file
   let filename = file.split('/'); //grab filename
   filename = filename[filename.length - 1];
   for(let i = 0; i < results.addresses.length; i++){
@@ -79,10 +79,12 @@ function processRange(cb){
 
 
 repo.update(function(){
-  files = glob.sync([REPO_PATH + '/*.@(ipset|netset)', '!*bogons*']); //ignore bogons, they are huge
-  files = files.filter((name)=>{ //make sure no bogons snuck in because glob is silly
-    return name.indexOf('bogons') === -1;
+  files = fs.readdirSync(REPO_PATH).filter((name)=>{ //make sure no bogons snuck in because glob is silly
+    return name.indexOf('bogons') === -1 &&
+    ( name.indexOf('.ipset') !== -1 ||
+    name.indexOf('.netset') !== -1 );
   });
+  console.log(files);
   console.log('Reading files...');
   while(files.length) processFile(); //handle files one by one to keep memory sane
   console.log('Writing individual addresses...');
