@@ -25,6 +25,12 @@ let conf = convict({
       format: 'int',
       default: 0
     }
+  },
+  port: {
+    default: 3000
+  },
+  cluster: {
+    default: true
   }
 });
 
