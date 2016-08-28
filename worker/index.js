@@ -11,7 +11,7 @@ const config = require('./lib/config');
 const redisUpload = require('./lib/redisUpload');
 
 const REPO_PATH = __dirname+'/../../repo';
-const EXPIRE_TIME = 60 * 60 * 24; //one day
+const EXPIRE_TIME = 60 * 60 * 24 * 3; //one day
 
 const OUTPUT_FILE = './bulkRedis.txt';
 
@@ -33,7 +33,7 @@ function writeBulkFile(ipArr, valueOverride, cb){
     let ip = ipArr[i];
     let value =  valueOverride?valueOverride:addresses[ip];
     value = JSON.stringify(JSON.stringify(value));
-    shouldContinue = redisFile.write(`*4\r\n$5\r\nSETEX\r\n$${ip.length}\r\n${ip}\r\n$5\r\n${EXPIRE_TIME}\r\n$${value.length}\r\n${value}\r\n`);
+    shouldContinue = redisFile.write(`*4\r\n$5\r\nSETEX\r\n$${ip.length}\r\n${ip}\r\n$6\r\n${EXPIRE_TIME}\r\n$${value.length}\r\n${value}\r\n`);
   }
   if(shouldContinue){ //Is everything written?
     return cb(); //then go ahead and continue
