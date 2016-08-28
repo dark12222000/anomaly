@@ -13,5 +13,5 @@ sudo apt-get install nodejs build-essential redis-tools git
 cd -
 
 #We use this for service management
-npm install -g forever
-npm install -g forever-service
+sudo npm install -g forever
+sudo npm install -g forever-service
