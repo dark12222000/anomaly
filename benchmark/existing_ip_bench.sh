@@ -2,7 +2,7 @@
 
 URL="http://localhost"
 PORT=3000
-IP="127.0.0.1"
+IP="137.171.236.221"
 
 function show_help {
   echo "-u  Specify url. Defaults to http://localhost"

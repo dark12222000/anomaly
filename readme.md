@@ -1,5 +1,11 @@
-# Anomaly
-A service for FireHOL blocklist
+# Anomaly Auth0 Demo Exercise
+A service to obtain, update, and parse the [FireHOL blocklists](https://github.com/firehol/blocklist-ipsets) into a high speed service to allow querying whether or not a given IP is on the list, and if so, which lists.
+
+This is a demo project which was completed over the course of a few days, so it's lacking tests, significant robustness, etc. It's designed simply to prove the case, and shouldn't be actively deployed into production. However, if you were to deploy this, you should:
+
++ Handle redis disconnects, reconnects, and master failovers
++ Move from doing a single large bulk redis operation to doing a batch of smaller redis bulk operations
++ Seriously consider moving from expanded netranges as they consume a lot of memory.
 
 ## Components
 
